@@ -1,6 +1,5 @@
-package repository;
-
-import model.User;
+package com.example.neo_bank.api.repository;
+import com.example.neo_bank.api.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

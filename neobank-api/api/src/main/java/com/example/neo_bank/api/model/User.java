@@ -1,5 +1,4 @@
-package model;
-
+package com.example.neo_bank.api.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -8,13 +7,12 @@ import java.util.List;
 
 @Entity // 1. Convierte esta clase en una tabla SQL
 @Table(name= "users")  // 2. Nombre de la tabla en la base de datos
-@NoArgsConstructor // 4. Obligatorio para que Hibernate funcione
 @AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
     @Column (unique = true, nullable = false) // El email no puede repetirse ni estar vacio
@@ -27,11 +25,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch =  FetchType.LAZY)
     private List<Account> accounts;
 
-    public long getId() {
+    public User(){}
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

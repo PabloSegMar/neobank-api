@@ -1,8 +1,7 @@
-package service;
-
-import model.User;
+package com.example.neo_bank.api.service;
+import com.example.neo_bank.api.model.User;
+import com.example.neo_bank.api.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import repository.UserRepository;
 
 @Service
 public class UserService {
