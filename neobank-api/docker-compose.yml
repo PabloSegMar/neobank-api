@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: neobank_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: neobank_db     # Nombre de la base de datos
+      MYSQL_ROOT_PASSWORD: root      # Contraseña de superadmin (backup)
+      MYSQL_USER: neobank            # Usuario para tu App Java
+      MYSQL_PASSWORD: pab07          # Tu contraseña
+    ports:
+      - "3307:3306"                  # Puerto PC : Puerto Contenedor
+    volumes:
+      - mysql_data:/var/lib/mysql    # Para no perder datos al reiniciar
+
+volumes:
+  mysql_data:
