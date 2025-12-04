@@ -15,12 +15,12 @@ public class AccountService {
     private final AccountRepository accountRespository;
     private final UserRepository userRepository;
 
-    public AccountService(AccountRepository accountRespository, UserRepository userRepository){
+    public AccountService(AccountRepository accountRespository, UserRepository userRepository) {
         this.accountRespository = accountRespository;
         this.userRepository = userRepository;
     }
 
-    public Account createAccount(Long userId){
+    public Account createAccount(Long userId) {
         //Si no existe el usuario se lanza un error
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario con id " + userId + " no encontrado"));
 
@@ -29,8 +29,13 @@ public class AccountService {
         account.setBalance(BigDecimal.ZERO); // Se empieza con 0 euros
         account.setUser(user); // Vinculamos la cuenta al usuario
 
-        // Genero un IBAN aleatorio
-        String randomIBAN = "ES " + UUID.randomUUID().toString().substring(0,20).toUpperCase();
+        // Genero un IBAN único
+        String randomIBAN;
+        do {
+            //Genero un iban aleatorio
+            randomIBAN = "ES" + UUID.randomUUID().toString().substring(0, 20).toUpperCase();
+        } while (accountRespository.existsByIban(randomIBAN));
+        //Asignamos el IBAN único
         account.setIban(randomIBAN);
 
         return accountRespository.save(account);
