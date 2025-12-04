@@ -6,14 +6,27 @@ services:
     container_name: neobank_mysql
     restart: always
     environment:
-      MYSQL_DATABASE: neobank_db     # Nombre de la base de datos
-      MYSQL_ROOT_PASSWORD: root      # Contraseña de superadmin (backup)
-      MYSQL_USER: neobank            # Usuario para tu App Java
-      MYSQL_PASSWORD: pab07          # Tu contraseña
+      MYSQL_DATABASE: neobank_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: neobank
+      MYSQL_PASSWORD: pab07
     ports:
-      - "3307:3306"                  # Puerto PC : Puerto Contenedor
+      - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql    # Para no perder datos al reiniciar
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build: .                      
+    container_name: neobank_api
+    restart: on-failure          
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db                 
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/neobank_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: neobank
+      SPRING_DATASOURCE_PASSWORD: pab07
 
 volumes:
   mysql_data:
