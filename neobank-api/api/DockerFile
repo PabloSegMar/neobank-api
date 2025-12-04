@@ -1,12 +1,12 @@
-FROM eclipse-temurin:17-jdk-alpine
-# 2. Creamos una carpeta dentro del contenedor
+FROM eclipse-temurin:17-jdk-alpine as builder
 WORKDIR /app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
 
-# 3. Copiamos el archivo ejecutable (JAR) de tu proyecto al contenedor
-COPY target/api-0.0.1-SNAPSHOT.jar app.jar
-
-# 4. Le decimos que la App escucha en el puerto 8080
-EXPOSE 8080
-
-# 5. El comando para arrancar la App
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
