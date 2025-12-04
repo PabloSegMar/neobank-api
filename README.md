@@ -29,7 +29,7 @@ The project follows a **Layered Architecture** to ensure separation of concerns:
 3.  **Repository Layer:** Interacts with the MySQL database via JPA.
 4.  **DTOs & Mappers:** Decouples the internal database entities from the external API representation.
 
-## 🏁 Getting Started
+## Getting Started
 
 ### Prerequisites
 * Docker & Docker Compose
@@ -46,5 +46,5 @@ API Documentation (Swagger UI)
 This API includes an interactive documentation using OpenAPI / Swagger. You can test endpoints directly from your browser without installing Postman.
 
 Open Swagger UI
-https://www.google.com/search?q=http://localhost:8080/swagger-ui/index.html
+
 (Note: The application must be running locally for this link to work)
