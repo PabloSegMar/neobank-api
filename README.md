@@ -46,5 +46,6 @@ API Documentation (Swagger UI)
 This API includes interactive documentation using OpenAPI / Swagger. You can test endpoints directly from your browser without installing Postman.
 
 Open Swagger UI
-**[Open Swagger UI](http://localhost:8080/swagger-ui/index.html)**
+**Open Swagger UI**  
+[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 (Note: The application must be running locally for this link to work)
