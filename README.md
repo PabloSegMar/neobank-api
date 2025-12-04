@@ -24,10 +24,10 @@ This project demonstrates the implementation of a scalable financial backend. It
 
 The project follows a **Layered Architecture** to ensure separation of concerns:
 
-1.  **Controller Layer:** Handles HTTP requests and responses.
-2.  **Service Layer:** Contains business logic (validations, calculations, transactional boundaries).
-3.  **Repository Layer:** Interacts with the MySQL database via JPA.
-4.  **DTOs & Mappers:** Decouples the internal database entities from the external API representation.
+1. **Controller Layer:** Handles HTTP requests and responses.
+2. **Service Layer:** Contains business logic (validations, calculations, transactional boundaries).
+3. **Repository Layer:** Interacts with the MySQL database via JPA.
+4. **DTOs & Mappers:** Decouples the internal database entities from the external API representation.
 
 ## Getting Started
 
@@ -42,11 +42,10 @@ You can spin up the MySQL database and the API with a single command:
 
 ```bash
 docker-compose up -d
-## API Documentation (Swagger UI)
+API Documentation (Swagger UI)
+This API includes interactive documentation using OpenAPI / Swagger. You can test endpoints directly from your browser without installing Postman.
 
-This API includes interactive documentation using **OpenAPI / Swagger**. You can test endpoints directly from your browser without installing Postman.
+Open Swagger UI
+http://localhost:8080/swagger-ui/index.html
 
-**Open Swagger UI**  
-👉 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
-
-*(Note: The application must be running locally for this link to work)*
+(Note: The application must be running locally for this link to work)
