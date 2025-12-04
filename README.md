@@ -42,9 +42,11 @@ You can spin up the MySQL database and the API with a single command:
 
 ```bash
 docker-compose up -d
-API Documentation (Swagger UI)
-This API includes an interactive documentation using OpenAPI / Swagger. You can test endpoints directly from your browser without installing Postman.
+## API Documentation (Swagger UI)
 
-Open Swagger UI
+This API includes interactive documentation using **OpenAPI / Swagger**. You can test endpoints directly from your browser without installing Postman.
 
-(Note: The application must be running locally for this link to work)
+**Open Swagger UI**  
+👉 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+*(Note: The application must be running locally for this link to work)*
