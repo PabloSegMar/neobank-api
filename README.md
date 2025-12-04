@@ -1,10 +1,8 @@
-# neobank-api
-A robust Fintech REST API built with Spring Boot 3 and Docker. Features secure JWT authentication, ACID transaction management, and MySQL persistence
-# NeoBank API 
+# NeoBank API
 
 A production-ready Banking REST API simulation built with **Java 17** and **Spring Boot 3**.
 
-This project demonstrates the implementation of a secure, scalable financial backend. It focuses on data integrity, handling complex SQL relationships, and ensuring precision in financial calculations using `BigDecimal` and strict ACID compliance.
+This project demonstrates the implementation of a secure, scalable financial backend. It focuses on data integrity, handling complex SQL relationships, and ensuring precision in financial calculations using `BigDecimal` with strict ACID compliance.
 
 ## Tech Stack
 
@@ -24,14 +22,14 @@ This project demonstrates the implementation of a secure, scalable financial bac
 * **Precision Logic:** Usage of `BigDecimal` for all monetary values to avoid floating-point rounding errors common in financial software.
 * **Docker Ready:** Fully containerized environment. The database and the application can be orchestrated via `docker-compose`.
 
-##  Architecture
+## Architecture
 
 The project follows a **Layered Architecture** to ensure separation of concerns:
 
-1.  **Controller Layer:** Handles HTTP requests and responses.
-2.  **Service Layer:** Contains business logic (validations, calculations, transactional boundaries).
-3.  **Repository Layer:** Interacts with the MySQL database via JPA.
-4.  **DTOs & Mappers:** Decouples the internal database entities from the external API representation.
+1. **Controller Layer:** Handles HTTP requests and responses.
+2. **Service Layer:** Contains business logic (validations, calculations, transactional boundaries).
+3. **Repository Layer:** Interacts with the MySQL database via JPA.
+4. **DTOs & Mappers:** Decouples the internal database entities from the external API representation.
 
 ## 🏁 Getting Started
 
@@ -46,12 +44,3 @@ You can spin up the MySQL database and the API with a single command:
 
 ```bash
 docker-compose up -d
-
-## API Documentation (Swagger UI)
-
-This API includes an interactive documentation using **OpenAPI / Swagger**.
-You can test endpoints directly from your browser without installing Postman.
-
- **[Open Swagger UI](http://localhost:8080/swagger-ui/index.html)**
-
-*(Note: The application must be running locally for this link to work)*
