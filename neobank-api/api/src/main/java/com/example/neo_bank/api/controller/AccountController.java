@@ -19,7 +19,7 @@ public class AccountController {
     }
 
     // Petición POST para crear cuenta a un usuario concreto
-    @PostMapping("/{userid}")
+    @PostMapping("/{userId}")
     public ResponseEntity<Account> createAccount(@PathVariable Long userId) {
         Account newAccount = accountService.createAccount(userId);
         return ResponseEntity.ok(newAccount);

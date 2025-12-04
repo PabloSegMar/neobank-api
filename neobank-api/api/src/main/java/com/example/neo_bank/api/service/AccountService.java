@@ -26,7 +26,7 @@ public class AccountService {
 
         // Creo una nueva cuenta
         Account account = new Account();
-        account.setBalance(BigDecimal.ZERO); // Se empieza con 0 euros
+        account.setBalance(new BigDecimal("1000")); // Se empieza con 0 euros
         account.setUser(user); // Vinculamos la cuenta al usuario
 
         // Genero un IBAN único

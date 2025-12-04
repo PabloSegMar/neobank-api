@@ -1,4 +1,5 @@
 package com.example.neo_bank.api.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
@@ -23,7 +24,8 @@ public class Account {
     private BigDecimal balance;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") //Nombre de la columna en SQL que une las tablas
+    @JoinColumn(name = "user_id")
+    @JsonIgnore//Nombre de la columna en SQL que une las tablas
     private User user;
 
     public Long getId() {
