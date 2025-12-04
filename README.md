@@ -18,11 +18,11 @@ This project demonstrates the implementation of a secure, scalable financial bac
 
 ## Key Features
 
-* ** Secure Transactions:** Implements `@Transactional` logic to ensure money transfers are atomic (ACID compliant). Includes rollback mechanisms for failed operations.
-* ** JWT Authentication:** Stateless security model using JSON Web Tokens for secure API access.
-* ** Data Validation:** Strict input validation to prevent invalid financial states (e.g., negative transfers, overdrafts).
-* ** Precision Logic:** Usage of `BigDecimal` for all monetary values to avoid floating-point rounding errors common in financial software.
-* ** Docker Ready:** Fully containerized environment. The database and the application can be orchestrated via `docker-compose`.
+* **Secure Transactions:** Implements `@Transactional` logic to ensure money transfers are atomic (ACID compliant). Includes rollback mechanisms for failed operations.
+* **JWT Authentication:** Stateless security model using JSON Web Tokens for secure API access.
+* **Data Validation:** Strict input validation to prevent invalid financial states (e.g., negative transfers, overdrafts).
+* **Precision Logic:** Usage of `BigDecimal` for all monetary values to avoid floating-point rounding errors common in financial software.
+* **Docker Ready:** Fully containerized environment. The database and the application can be orchestrated via `docker-compose`.
 
 ##  Architecture
 
@@ -46,3 +46,12 @@ You can spin up the MySQL database and the API with a single command:
 
 ```bash
 docker-compose up -d
+
+## API Documentation (Swagger UI)
+
+This API includes an interactive documentation using **OpenAPI / Swagger**.
+You can test endpoints directly from your browser without installing Postman.
+
+ **[Open Swagger UI](http://localhost:8080/swagger-ui/index.html)**
+
+*(Note: The application must be running locally for this link to work)*
