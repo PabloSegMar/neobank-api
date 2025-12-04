@@ -1,0 +1,14 @@
+# 1. Usamos una imagen base de Java 17 (ligera)
+FROM openjdk:17-jdk-slim
+
+# 2. Creamos una carpeta dentro del contenedor
+WORKDIR /app
+
+# 3. Copiamos el archivo ejecutable (JAR) de tu proyecto al contenedor
+COPY target/neobank-api-0.0.1-SNAPSHOT.jar app.jar
+
+# 4. Le decimos que la App escucha en el puerto 8080
+EXPOSE 8080
+
+# 5. El comando para arrancar la App
+ENTRYPOINT ["java", "-jar", "app.jar"]
