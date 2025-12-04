@@ -42,4 +42,8 @@ public class AccountService {
 
 
     }
+
+    public Account getAccountById(Long id) {
+        return accountRespository.findById(id).orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+    }
 }
