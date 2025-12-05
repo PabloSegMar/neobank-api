@@ -1,5 +1,6 @@
 package com.example.neo_bank.api.auth;
 
+import com.example.neo_bank.api.model.Role;
 import com.example.neo_bank.api.model.User;
 import com.example.neo_bank.api.repository.UserRepository;
 import com.example.neo_bank.api.security.JwtService;
@@ -51,10 +52,13 @@ public class AuthController {
     public ResponseEntity<AuthenticationResponse> register(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+        }
+
         userRepository.save(user);
 
-        final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(user.getEmail());
-        final String jwt = jwtService.generateToken(userDetails);
+        final String jwt = jwtService.generateToken(user);
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
     }
