@@ -16,7 +16,9 @@ services:
       - mysql_data:/var/lib/mysql
 
   api:
-    build: .                      
+    build:
+      context: .
+      dockerfile: DockerFile
     container_name: neobank_api
     restart: on-failure          
     ports:
