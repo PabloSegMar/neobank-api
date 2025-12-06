@@ -1,10 +1,12 @@
 package com.example.neo_bank.api.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "accounts")
@@ -12,7 +14,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Account {
 
-    public Account(){}
+    public Account() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +31,9 @@ public class Account {
     @JoinColumn(name = "user_id") //Nombre de la columna en SQL que une las tablas
     @JsonIgnore
     private User user;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Card> cards;
 
     public Long getId() {
         return id;
@@ -58,5 +65,13 @@ public class Account {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
     }
 }
