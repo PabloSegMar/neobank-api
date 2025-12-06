@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @AllArgsConstructor
-public class User implements UserDetails { // <--- ¡IMPORTANTE! Implements UserDetails
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
