@@ -6,6 +6,7 @@ import com.example.neo_bank.api.model.Transaction;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
 import com.example.neo_bank.api.service.TransactionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<String> makeTransfer(@RequestBody TransferRequest request) {
+    public ResponseEntity<String> makeTransfer(@RequestBody @Valid TransferRequest request) {
         transactionService.transferMoney(request);
         return ResponseEntity.ok("Transferencia realizada con éxito");
     }
