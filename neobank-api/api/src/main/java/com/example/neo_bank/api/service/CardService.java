@@ -44,6 +44,10 @@ public class CardService {
         return cardRepository.findByAccountId(accountId);
     }
 
+    public List<Card> getAllCards() {
+        return cardRepository.findAll();
+    }
+
     private String generateRandomDigits(int length) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
