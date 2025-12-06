@@ -42,6 +42,7 @@ You don't need Java installed. Just **Docker**.
 ### 1. Run the project
 ```bash
 docker-compose up -d --build
+```
 2. Access the System
 Swagger UI (API Docs): http://localhost:8080/swagger-ui/index.html
 Testing Credentials
