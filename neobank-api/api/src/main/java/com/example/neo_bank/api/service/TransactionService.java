@@ -6,16 +6,20 @@ import com.example.neo_bank.api.model.Transaction;
 import com.example.neo_bank.api.model.TransactionType;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+
 @Service
 public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
@@ -25,16 +29,25 @@ public class TransactionService {
     @Transactional
     public void transferMoney(TransferRequest request) {
 
+        logger.info("INTENTO DE TRANSFERENCIA: {}€ desde IBAN {} hacia {}", request.getAmount(), request.getFromIban(), request.getToIban());
+
         // 1. Busco cuenta origen (la que paga)
         Account fromAccount = accountRepository.findByIban(request.getFromIban())
-                .orElseThrow(() -> new RuntimeException("La cuenta origen no ha sido encontrada"));
+                .orElseThrow(() -> {
+                    logger.error("Error: cuenta origen no encontrada");
+                    return new RuntimeException("La cuenta origen no ha sido encontrada");
+
+                });
 
         // 2. Buscar cuenta destino (la que recibe)
         Account toAccount = accountRepository.findByIban(request.getToIban())
-                .orElseThrow(() -> new RuntimeException("La cuenta destino no ha sido encontrada"));
-
+                .orElseThrow(() -> {
+                    logger.error("Error: cuenta destino no encontrada");
+                    return new RuntimeException("La cuenta destino no ha sido encontrada");
+                });
         // 3. Validar saldo
         if (fromAccount.getBalance().compareTo(request.getAmount()) < 0) {
+            logger.warn("Saldo insuficiente en la cuenta de {}", fromAccount.getUser().getEmail());
             throw new RuntimeException("No hay saldo suficiente");
         }
 
@@ -67,5 +80,7 @@ public class TransactionService {
         credit.setType(TransactionType.TRANSFER);
         credit.setTimestamp(LocalDateTime.now());
         transactionRepository.save(credit);
+
+        logger.info("TRANSFERENCIA COMPLETADA con exito. Nuevo saldo de origen: {}€", fromAccount.getBalance());
     }
 }
