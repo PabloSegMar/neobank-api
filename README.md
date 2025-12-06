@@ -1,4 +1,4 @@
-# 🏦 NeoBank API
+# NeoBank API
 
 A production-ready Banking REST API simulation built with **Java 17** and **Spring Boot 3**.
 
@@ -42,4 +42,18 @@ You don't need Java installed. Just **Docker**.
 ### 1. Run the project
 ```bash
 docker-compose up -d --build
-2. Access the SystemSwagger UI (API Docs): http://localhost:8080/swagger-ui/index.htmlWeb Dashboard: http://localhost:8080 Testing CredentialsThe system comes with Roles pre-configured. You can register new users via Swagger or use these roles logic:RoleCapabilitiesEndpoint AccessUSERTransfer money, View own Account, Request CardsGET /api/accounts/{myId}ADMINView ALL Users, View ALL Accounts, Global AuditGET /api/users, GET /api/transactions API Endpoints OverviewMethodEndpointDescriptionAuth RequiredPOST/api/auth/registerRegister new user (User/Admin) PublicPOST/api/auth/loginGet JWT Token PublicPOST/api/transactionsTransfer money TokenGET/api/cards/{accountId}View Cards (Masked) Token (Owner)GET/api/usersList all customers Admin Only
+2. Access the System
+Swagger UI (API Docs): http://localhost:8080/swagger-ui/index.html
+Testing Credentials
+The system comes with Roles pre-configured. You can register new users via Swagger or use these roles logic:
+Role Capabilities Endpoint Access 
+USER Transfer money, View own Account, Request Cards GET /api/accounts/{myId}
+ADMIN View ALL Users, View ALL Accounts, Global AuditGET /api/users, GET /api/transactions 
+API Endpoints Overview
+Method Endpoint Description Auth Required
+POST /api/auth/register Register new user (User/Admin) Public 
+POST/api/auth/loginGet JWT Token Public
+POST/api/transactions Transfer money Token
+GET/api/cards/{accountId} View Cards (Masked) Token (Owner)
+GET/api/users List all customers Admin Only
+Author: Pablo Segura Martos Built with Java.
