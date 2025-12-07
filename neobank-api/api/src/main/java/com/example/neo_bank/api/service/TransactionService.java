@@ -1,5 +1,6 @@
 package com.example.neo_bank.api.service;
 
+import com.example.neo_bank.api.audit.Audit;
 import com.example.neo_bank.api.dto.TransferRequest;
 import com.example.neo_bank.api.model.Account;
 import com.example.neo_bank.api.model.Transaction;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 
@@ -118,5 +120,29 @@ public class TransactionService {
         transaction.setTimestamp(LocalDateTime.now());
 
         transactionRepository.save(transaction);
+    }
+
+    @Transactional
+    @Audit(action = "PAGO AUTOMÁTICO DE INTERESES")
+    public void applyInterestToAllAccounts(){
+        List<Account> accounts =   accountRepository.findAll();
+
+        for(Account account : accounts){
+            BigDecimal interest = account.getBalance().multiply(new BigDecimal("0.01"));
+            if(interest.compareTo(BigDecimal.ZERO) > 0){
+                account.setBalance(account.getBalance().add(interest));
+                accountRepository.save(account);
+
+                Transaction transaction = new Transaction();
+                transaction.setAccount(account);
+                transaction.setAmount(interest);
+                transaction.setType(TransactionType.DEPOSIT);
+                transaction.setTimestamp(LocalDateTime.now());
+
+                transactionRepository.save(transaction);
+
+                logger.info("Interés de {}€ aplicado a la cuenta {}", interest, account.getIban());
+            }
+        }
     }
 }
