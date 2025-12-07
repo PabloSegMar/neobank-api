@@ -42,6 +42,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/cards").hasRole("ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/audit").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

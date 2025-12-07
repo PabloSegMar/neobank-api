@@ -1,5 +1,6 @@
 package com.example.neo_bank.api.controller;
 
+import com.example.neo_bank.api.audit.Audit;
 import com.example.neo_bank.api.dto.MoneyRequest;
 import com.example.neo_bank.api.dto.TransferRequest;
 import com.example.neo_bank.api.model.Account;
@@ -31,6 +32,7 @@ public class TransactionController {
     }
 
     @PostMapping
+    @Audit(action = "REALIZAR TRANSFERENCIA")
     public ResponseEntity<String> makeTransfer(@RequestBody @Valid TransferRequest request) {
         transactionService.transferMoney(request);
         return ResponseEntity.ok("Transferencia realizada con éxito");
@@ -59,6 +61,7 @@ public class TransactionController {
 
 
     @PostMapping("/deposit")
+    @Audit(action = "INGRESO EN CAJERO")
     public ResponseEntity<?> deposit(@RequestBody @Valid MoneyRequest request) {
         if (!isOwnerAdmin(request.getAccountId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes ingresar dinero en cuentas ajenas");
@@ -69,6 +72,7 @@ public class TransactionController {
     }
 
     @PostMapping("/withdraw")
+    @Audit(action = "RETIRO EN CAJERO")
     public ResponseEntity<?> withdraw(@RequestBody @Valid MoneyRequest request) {
         if (!isOwnerAdmin(request.getAccountId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes retirar dinero de cuentas ajenas");
