@@ -83,4 +83,40 @@ public class TransactionService {
 
         logger.info("TRANSFERENCIA COMPLETADA con exito. Nuevo saldo de origen: {}€", fromAccount.getBalance());
     }
+
+    @Transactional
+    public void deposit(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount);
+        transaction.setType(TransactionType.DEPOSIT);
+        transaction.setTimestamp(LocalDateTime.now());
+
+        transactionRepository.save(transaction);
+    }
+
+    @Transactional
+    public void withdraw(Long accountId, BigDecimal amount){
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        if(account.getBalance().compareTo(amount) < 0){
+            throw new RuntimeException("Saldo insuficiente para retirar");
+        }
+
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepository.save(account);
+
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(amount.negate());
+        transaction.setType(TransactionType.WITHDRAWAL);
+        transaction.setTimestamp(LocalDateTime.now());
+
+        transactionRepository.save(transaction);
+    }
 }

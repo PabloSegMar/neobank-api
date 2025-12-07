@@ -1,5 +1,6 @@
 package com.example.neo_bank.api.controller;
 
+import com.example.neo_bank.api.dto.MoneyRequest;
 import com.example.neo_bank.api.dto.TransferRequest;
 import com.example.neo_bank.api.model.Account;
 import com.example.neo_bank.api.model.Transaction;
@@ -54,5 +55,39 @@ public class TransactionController {
     @GetMapping
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         return ResponseEntity.ok(transactionRepository.findAll());
+    }
+
+
+    @PostMapping("/deposit")
+    public ResponseEntity<?> deposit(@RequestBody @Valid MoneyRequest request) {
+        if (!isOwnerAdmin(request.getAccountId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes ingresar dinero en cuentas ajenas");
+        }
+
+        transactionService.deposit(request.getAccountId(), request.getAmount());
+        return ResponseEntity.ok("Dinero ingresado correctamente");
+    }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<?> withdraw(@RequestBody @Valid MoneyRequest request) {
+        if (!isOwnerAdmin(request.getAccountId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes retirar dinero de cuentas ajenas");
+        }
+
+        transactionService.withdraw(request.getAccountId(), request.getAmount());
+        return ResponseEntity.ok("Dinero retirado correctamente");
+    }
+
+
+    private boolean isOwnerAdmin(Long accountId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String emailLogueado = auth.getName();
+
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) return true;
+
+        Account account = accountRepository.findById(accountId).orElse(null);
+        return account != null && account.getUser().getEmail().equals(emailLogueado);
+
     }
 }
