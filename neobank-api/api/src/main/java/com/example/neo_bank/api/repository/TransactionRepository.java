@@ -16,6 +16,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT SUM(t.amount) FROM Transaction t " + "WHERE t.account.id = :accountId " + "AND t.type = 'TRANSFER' " + "AND t.amount < 0" + "AND t.timestamp >= :startOfDay")
     BigDecimal getDailyOutgoingSum(@Param("accountId") Long accountId, @Param("startOfDay") LocalDateTime startOfDay);
-    
+
     Page<Transaction> findByAccountId(Long accountId, Pageable pageable);
 }
