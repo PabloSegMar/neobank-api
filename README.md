@@ -1,60 +1,110 @@
 # NeoBank API
 
-A production-ready Banking REST API simulation built with **Java 17** and **Spring Boot 3**.
+NeoBank API is a robust, RESTful transactional banking system built with Java 17 and Spring Boot 3. It simulates the core operations of a financial institution, focusing on data consistency, high concurrency management, and security compliance.
 
-This project demonstrates the implementation of a scalable financial backend with **Bank-Grade Security**. It focuses on data integrity, complex relationships (Users-Accounts-Cards), and secure access control.
+This project demonstrates the implementation of a secure financial backend capable of handling real-time transfers, account management, and audit logging within a containerized environment.
 
-## Tech Stack
+## Architectural Highlights
 
-* **Core:** Java 17 (LTS), Spring Boot 3.2
-* **Security:** Spring Security 6, JWT (JSON Web Tokens)
-* **Database:** MySQL 8.0 (Containerized)
-* **DevOps:** Docker, Docker Compose (Multi-stage build)
-* **Documentation:** OpenAPI / Swagger UI
+This project addresses specific challenges found in financial software development:
 
-## Key Features
+### 1. Concurrency Control & Data Consistency
+To prevent race conditions during simultaneous fund transfers, the system implements **Pessimistic Locking** (`PESSIMISTIC_WRITE`) at the database level.
+* **Mechanism:** The `AccountRepository` explicitly locks the rows involved in a transaction until the operation commits.
+* **Result:** Ensures ACID compliance and prevents negative balances even under high concurrent load.
 
-### Security & Access Control
-* **JWT Authentication:** Stateless authentication using Bearer Tokens.
-* **Role-Based Access Control (RBAC):**
-    * `ADMIN`: Can audit all users, accounts, and global transactions.
-    * `USER`: Can only access their own data and assets.
-* **Data Masking:** Sensitive data (like card numbers) is masked in API responses (`**** **** **** 1234`).
+### 2. Security Layering
+Security is implemented through a multi-layered approach:
+* **Authentication:** Stateless authentication using JWT (JSON Web Tokens) with a custom security filter chain.
+* **Authorization:** Role-Based Access Control (RBAC) segregating endpoints between `ADMIN` and `USER` roles.
+* **DDoS Protection:** Application-level Rate Limiting implemented via **Bucket4j** (Token bucket algorithm), restricting traffic per IP address to prevent abuse.
 
-### Financial Core
-* **Atomic Transactions:** Uses `@Transactional` to ensure money transfers are ACID compliant.
-* **Precision Logic:** `BigDecimal` for all monetary calculations to prevent rounding errors.
-* **Card Management:** System to issue Debit/Credit cards with auto-generated secure numbers and CVVs.
+### 3. Data Privacy (Encryption at Rest)
+Sensitive personal information (PII), specifically IBANs, is encrypted before persistence using an implementation of `AttributeConverter`.
+* **Algorithm:** AES encryption.
+* **Behavior:** Data is stored encrypted in the database but decrypted automatically by the ORM when retrieved by the application context.
 
-### Architecture
-The project follows a strict **Layered Architecture**:
-1.  **Web Layer:** REST Controllers with DTO validation.
-2.  **Service Layer:** Business logic and transactional boundaries.
-3.  **Persistence Layer:** JPA Repositories interacting with MySQL.
-4.  **Security Layer:** Custom Filters and Authentication Providers.
+### 4. Auditing via AOP
+Cross-cutting concerns such as audit logging are decoupled from business logic using **Aspect-Oriented Programming (Spring AOP)**.
+* An `@Audit` annotation intercepts critical methods.
+* Transaction details are asynchronously logged to an `audit_logs` table for compliance and tracking.
 
----
+## Technology Stack
 
-## Getting Started (The Easy Way)
+* **Language:** Java 17
+* **Framework:** Spring Boot 3.x
+* **Security:** Spring Security 6, JWT, BCrypt, Bucket4j
+* **Persistence:** Spring Data JPA, Hibernate, MySQL 8.0 (Production), H2 (Testing)
+* **Reporting:** OpenPDF (Statement generation)
+* **Testing:** JUnit 5, Mockito
+* **Infrastructure:** Docker, Docker Compose
 
-You don't need Java installed. Just **Docker**.
+## Getting Started
 
-### 1. Run the project
-```bash
+The application is containerized for easy deployment.
+
+### Prerequisites
+* Docker & Docker Compose
+
+### Installation & Execution
+
+1. Clone the repository.
+2. Build and start the services using Docker Compose:
+
 docker-compose up -d --build
-```
-2. Access the System
-Swagger UI (API Docs): http://localhost:8080/swagger-ui/index.html
-Testing Credentials
-The system comes with Roles pre-configured. You can register new users via Swagger or use these roles logic:
-Role Capabilities Endpoint Access 
-USER Transfer money, View own Account, Request Cards GET /api/accounts/{myId}
-ADMIN View ALL Users, View ALL Accounts, Global AuditGET /api/users, GET /api/transactions 
-API Endpoints Overview
-Method Endpoint Description Auth Required
-POST /api/auth/register Register new user (User/Admin) Public 
-POST/api/auth/loginGet JWT Token Public
-POST/api/transactions Transfer money Token
-GET/api/cards/{accountId} View Cards (Masked) Token (Owner)
-GET/api/users List all customers Admin Only
-Author: Pablo Segura Martos Built with Java.
+
+This command will:
+* Build the Java application using a multi-stage Dockerfile (Maven build -> JRE runtime).
+* Spin up a MySQL 8.0 container.
+* Expose the API on port `8080`.
+
+### Default Credentials
+
+Upon initialization, the `DataInitializer` bean pre-loads the following users for testing purposes:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **ADMIN** | `admin@neobank.com` | `admin123` |
+| **USER** | `andres@neobank.com` | `user123` |
+
+## API Documentation
+
+The API is fully documented using the OpenAPI 3.0 specification. Once the application is running, the Swagger UI is available at:
+
+**URL:** `http://localhost:8080/swagger-ui/index.html`
+
+*Note: Use the `/api/auth/login` endpoint to obtain a JWT. Authorize requests by clicking the "Authorize" button and entering the token as `Bearer <token>`.*
+
+## Testing Strategy
+
+The project emphasizes unit testing on the core business logic layer (`TransactionService`).
+
+To execute the test suite:
+
+mvn test
+
+**Key Test Scenarios:**
+* Successful money transfers between accounts.
+* Prevention of self-transfers (same source and destination).
+* Insufficient balance exception handling.
+* Database lock verification (via Mockito verification).
+
+## Project Structure
+
+src/main/java/com/example/neo_bank/api
+├── audit/          # AOP Aspects and Annotations
+├── auth/           # Authentication Controllers (Login/Register)
+├── config/         # Security, Swagger, and Data Initialization
+├── controller/     # REST Controllers
+├── dto/            # Data Transfer Objects
+├── model/          # JPA Entities
+├── ratelimit/      # Rate Limiting Logic
+├── repository/     # Data Access Layer
+├── scheduler/      # Scheduled Jobs (Interest calculation)
+├── security/       # JWT Filters and UserDetails implementation
+├── service/        # Business Logic
+└── util/           # Encryption Utilities
+
+## License
+
+This project is open-source and available under the MIT License.
