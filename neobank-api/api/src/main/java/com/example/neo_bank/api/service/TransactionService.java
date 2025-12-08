@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
+    private static final BigDecimal DAILY_LIMIT = new BigDecimal("2000.00");
 
     public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
@@ -40,8 +42,17 @@ public class TransactionService {
                 .orElseThrow(() -> {
                     logger.error("Error: cuenta origen no encontrada");
                     return new RuntimeException("La cuenta origen no ha sido encontrada");
-
                 });
+
+        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN);
+        BigDecimal spentToday = transactionRepository.getDailyOutgoingSum(fromAccount.getId(), startOfDay);
+        if (spentToday == null) spentToday = BigDecimal.ZERO;
+        BigDecimal totalSpent = spentToday.abs();
+
+        if (totalSpent.add(request.getAmount()).compareTo(DAILY_LIMIT) > 0) {
+            logger.warn("Limite diario excedido para {}", fromAccount.getIban());
+            throw new RuntimeException("Has superado tu límite diario de transferencias (2.000 €).");
+        }
 
         // 2. Buscar cuenta destino (la que recibe)
         Account toAccount = accountRepository.findByIban(request.getToIban())
