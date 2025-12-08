@@ -30,7 +30,9 @@ public class TransactionService {
 
     @Transactional
     public void transferMoney(TransferRequest request) {
-
+        if (request.getFromIban().equals(request.getToIban())) {
+            throw new IllegalArgumentException("No puedes transferirte dinero a ti mismo.");
+        }
         logger.info("INTENTO DE TRANSFERENCIA: {}€ desde IBAN {} hacia {}", request.getAmount(), request.getFromIban(), request.getToIban());
 
         // 1. Busco cuenta origen (la que paga)
@@ -103,10 +105,10 @@ public class TransactionService {
     }
 
     @Transactional
-    public void withdraw(Long accountId, BigDecimal amount){
+    public void withdraw(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
-        if(account.getBalance().compareTo(amount) < 0){
+        if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Saldo insuficiente para retirar");
         }
 
@@ -124,12 +126,12 @@ public class TransactionService {
 
     @Transactional
     @Audit(action = "PAGO AUTOMÁTICO DE INTERESES")
-    public void applyInterestToAllAccounts(){
-        List<Account> accounts =   accountRepository.findAll();
+    public void applyInterestToAllAccounts() {
+        List<Account> accounts = accountRepository.findAll();
 
-        for(Account account : accounts){
+        for (Account account : accounts) {
             BigDecimal interest = account.getBalance().multiply(new BigDecimal("0.01"));
-            if(interest.compareTo(BigDecimal.ZERO) > 0){
+            if (interest.compareTo(BigDecimal.ZERO) > 0) {
                 account.setBalance(account.getBalance().add(interest));
                 accountRepository.save(account);
 
