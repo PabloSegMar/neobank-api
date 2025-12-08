@@ -9,6 +9,10 @@ import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
 import com.example.neo_bank.api.service.TransactionService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -39,24 +43,28 @@ public class TransactionController {
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<List<Transaction>> getHistory(@PathVariable Long accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+    public ResponseEntity<Page<Transaction>> getHistory(
+            @PathVariable Long accountId,
+            @PageableDefault(page = 0, size = 10, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String emailUsuarioLogeado = auth.getName();
-
-        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isAdmin && !account.getUser().getEmail().equals(emailUsuarioLogeado)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return ResponseEntity.ok(transactionRepository.findByAccountId(accountId));
+        return ResponseEntity.ok(transactionRepository.findByAccountId(accountId, pageable));
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        return ResponseEntity.ok(transactionRepository.findAll());
+    public ResponseEntity<Page<Transaction>> getAllTransactions(@PageableDefault(page = 0, size = 10, sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(transactionRepository.findAll(pageable));
     }
 
 
