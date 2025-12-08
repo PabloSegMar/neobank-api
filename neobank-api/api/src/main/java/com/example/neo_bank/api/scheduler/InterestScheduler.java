@@ -13,7 +13,7 @@ public class InterestScheduler {
         this.transactionService = transactionService;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void runInterestTask() {
         System.out.println("Calculando intereses...");
         transactionService.applyInterestToAllAccounts();
