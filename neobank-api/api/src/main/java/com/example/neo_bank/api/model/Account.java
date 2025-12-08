@@ -1,5 +1,6 @@
 package com.example.neo_bank.api.model;
 
+import com.example.neo_bank.api.util.IbanEncryptor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class Account {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    @Convert(converter = IbanEncryptor.class)
     private String iban;
 
     @Column(precision = 19, scale = 2)
