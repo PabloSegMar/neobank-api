@@ -58,15 +58,6 @@ This command will:
 * Spin up a MySQL 8.0 container.
 * Expose the API on port `8080`.
 
-### Default Credentials
-
-Upon initialization, the `DataInitializer` bean pre-loads the following users for testing purposes:
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **ADMIN** | `admin@neobank.com` | `admin123` |
-| **USER** | `andres@neobank.com` | `user123` |
-
 ## API Documentation
 
 The API is fully documented using the OpenAPI 3.0 specification. Once the application is running, the Swagger UI is available at:
@@ -104,6 +95,10 @@ src/main/java/com/example/neo_bank/api
 ├── security/       # JWT Filters and UserDetails implementation
 ├── service/        # Business Logic
 └── util/           # Encryption Utilities
+
+## Author
+
+**Developed by Pablo Segura Martos**
 
 ## License
 
