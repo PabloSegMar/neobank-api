@@ -1,8 +1,7 @@
 package com.example.neo_bank.api.dto;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class MoneyRequest {
@@ -11,10 +10,10 @@ public class MoneyRequest {
     private Long accountId;
 
     @NotNull(message = "La cantidad es obligatoria")
-    @DecimalMin(value = "0.01", message = "La cantidad minima es 0.01")
+    @Positive(message = "La cantidad debe ser mayor a 0")
     private BigDecimal amount;
 
-    public Long getAccountId() {
+     public Long getAccountId() {
         return accountId;
     }
 

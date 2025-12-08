@@ -2,6 +2,7 @@ package com.example.neo_bank.api.service;
 
 import com.example.neo_bank.api.dto.TransferRequest;
 import com.example.neo_bank.api.model.Account;
+import com.example.neo_bank.api.model.Transaction;
 import com.example.neo_bank.api.model.User;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
@@ -49,8 +50,8 @@ class TransactionServiceTest {
         request.setAmount(new BigDecimal("100"));
 
 
-        when(accountRepository.findByIban("ES001")).thenReturn(Optional.of(origen));
-        when(accountRepository.findByIban("ES002")).thenReturn(Optional.of(destino));
+        when(accountRepository.findByIbanWithLock("ES001")).thenReturn(Optional.of(origen));
+        when(accountRepository.findByIbanWithLock("ES002")).thenReturn(Optional.of(destino));
         when(transactionRepository.getDailyOutgoingSum(any(), any())).thenReturn(BigDecimal.ZERO);
 
         transactionService.transferMoney(request);
@@ -59,6 +60,7 @@ class TransactionServiceTest {
         assertEquals(new BigDecimal("300"), destino.getBalance());
 
         verify(accountRepository, times(2)).save(any(Account.class));
+        verify(transactionRepository, times(2)).save(any(Transaction.class));
     }
 
     @Test
@@ -71,6 +73,7 @@ class TransactionServiceTest {
             transactionService.transferMoney(request);
         });
         assertTrue(exception.getMessage().contains("mismo"));
+        verify(accountRepository, never()).findByIbanWithLock(any());
     }
 
     @Test
@@ -88,13 +91,15 @@ class TransactionServiceTest {
         request.setToIban("ES002");
         request.setAmount(new BigDecimal("500"));
 
-        when(accountRepository.findByIban("ES001")).thenReturn(Optional.of(origen));
-        when(accountRepository.findByIban("ES002")).thenReturn(Optional.of(destino));
+        when(accountRepository.findByIbanWithLock("ES001")).thenReturn(Optional.of(origen));
+        when(accountRepository.findByIbanWithLock("ES002")).thenReturn(Optional.of(destino));
         when(transactionRepository.getDailyOutgoingSum(any(), any())).thenReturn(BigDecimal.ZERO);
 
         assertThrows(RuntimeException.class, () -> {
             transactionService.transferMoney(request);
         });
 
+        verify(accountRepository, never()).save(any());
+        verify(transactionRepository, never()).save(any());
     }
 }

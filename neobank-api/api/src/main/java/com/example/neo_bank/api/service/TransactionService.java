@@ -8,10 +8,13 @@ import com.example.neo_bank.api.model.TransactionType;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -38,7 +41,7 @@ public class TransactionService {
         logger.info("INTENTO DE TRANSFERENCIA: {}€ desde IBAN {} hacia {}", request.getAmount(), request.getFromIban(), request.getToIban());
 
         // 1. Busco cuenta origen (la que paga)
-        Account fromAccount = accountRepository.findByIban(request.getFromIban())
+        Account fromAccount = accountRepository.findByIbanWithLock(request.getFromIban())
                 .orElseThrow(() -> {
                     logger.error("Error: cuenta origen no encontrada");
                     return new RuntimeException("La cuenta origen no ha sido encontrada");
@@ -55,7 +58,7 @@ public class TransactionService {
         }
 
         // 2. Buscar cuenta destino (la que recibe)
-        Account toAccount = accountRepository.findByIban(request.getToIban())
+        Account toAccount = accountRepository.findByIbanWithLock(request.getToIban())
                 .orElseThrow(() -> {
                     logger.error("Error: cuenta destino no encontrada");
                     return new RuntimeException("La cuenta destino no ha sido encontrada");
@@ -138,24 +141,33 @@ public class TransactionService {
     @Transactional
     @Audit(action = "PAGO AUTOMÁTICO DE INTERESES")
     public void applyInterestToAllAccounts() {
-        List<Account> accounts = accountRepository.findAll();
+        int pageSize = 100;
+        int pageNumber = 0;
+        Page<Account> page;
 
-        for (Account account : accounts) {
-            BigDecimal interest = account.getBalance().multiply(new BigDecimal("0.01"));
-            if (interest.compareTo(BigDecimal.ZERO) > 0) {
-                account.setBalance(account.getBalance().add(interest));
-                accountRepository.save(account);
+        do {
+            page = accountRepository.findAll(PageRequest.of(pageNumber, pageSize));
 
-                Transaction transaction = new Transaction();
-                transaction.setAccount(account);
-                transaction.setAmount(interest);
-                transaction.setType(TransactionType.DEPOSIT);
-                transaction.setTimestamp(LocalDateTime.now());
+            for (Account account : page.getContent()) {
+                BigDecimal interest = account.getBalance().multiply(new BigDecimal("0.01").setScale(2, RoundingMode.HALF_EVEN));
+                if (interest.compareTo(BigDecimal.ZERO) > 0) {
+                    account.setBalance(account.getBalance().add(interest));
+                    accountRepository.save(account);
 
-                transactionRepository.save(transaction);
+                    Transaction transaction = new Transaction();
+                    transaction.setAccount(account);
+                    transaction.setAmount(interest);
+                    transaction.setType(TransactionType.DEPOSIT);
+                    transaction.setTimestamp(LocalDateTime.now());
 
-                logger.info("Interés de {}€ aplicado a la cuenta {}", interest, account.getIban());
+                    transactionRepository.save(transaction);
+
+                    logger.info("Interés de {}€ aplicado a la cuenta {}", interest, account.getIban());
+                }
             }
-        }
+            pageNumber++;
+        } while (page.hasNext());
+
+
     }
 }
