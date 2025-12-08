@@ -75,14 +75,4 @@ public class AccountController {
                 .body(pdfBytes);
 
     }
-    @PostMapping("/migrate-security")
-    public ResponseEntity<String> migrateData() {
-        // 1. Cargar todas (se leen tal cual gracias al try-catch)
-        List<Account> accounts = accountRepository.findAll();
-
-        // 2. Guardar todas (al guardar, el convertToDatabaseColumn las encripta)
-        accountRepository.saveAll(accounts);
-
-        return ResponseEntity.ok("¡Migración completada! " + accounts.size() + " cuentas encriptadas.");
-    }
 }

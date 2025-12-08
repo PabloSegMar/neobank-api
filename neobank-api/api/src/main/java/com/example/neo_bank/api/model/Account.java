@@ -37,6 +37,9 @@ public class Account {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Card> cards;
 
+    @Version
+    private Long version;
+
     public Long getId() {
         return id;
     }
@@ -75,5 +78,13 @@ public class Account {
 
     public void setCards(List<Card> cards) {
         this.cards = cards;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
