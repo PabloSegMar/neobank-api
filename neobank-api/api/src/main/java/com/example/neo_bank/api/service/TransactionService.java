@@ -5,6 +5,7 @@ import com.example.neo_bank.api.dto.TransferRequest;
 import com.example.neo_bank.api.model.Account;
 import com.example.neo_bank.api.model.Transaction;
 import com.example.neo_bank.api.model.TransactionType;
+import com.example.neo_bank.api.notification.NotificationService;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     @Value("${neobank.business.daily-limit}")
@@ -34,20 +36,23 @@ public class TransactionService {
     @Value("${neobank.business.interest-rate}")
     private BigDecimal interestRate;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, NotificationService notificationService) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
     public void transferMoney(TransferRequest request) {
-        if (request.getFromIban().equals(request.getToIban())) {
+        String cleanFromIban = request.getFromIban().trim();
+        String cleanToIban = request.getToIban().trim();
+        if (cleanFromIban.equals(cleanToIban)) {
             throw new IllegalArgumentException("No puedes transferirte dinero a ti mismo.");
         }
         logger.info("INTENTO DE TRANSFERENCIA: {}€ desde IBAN {} hacia {}", request.getAmount(), request.getFromIban(), request.getToIban());
 
         // 1. Busco cuenta origen (la que paga)
-        Account fromAccount = accountRepository.findByIbanWithLock(request.getFromIban())
+        Account fromAccount = accountRepository.findByIbanWithLock(cleanFromIban)
                 .orElseThrow(() -> {
                     logger.error("Error: cuenta origen no encontrada");
                     return new RuntimeException("La cuenta origen no ha sido encontrada");
@@ -64,7 +69,7 @@ public class TransactionService {
         }
 
         // 2. Buscar cuenta destino (la que recibe)
-        Account toAccount = accountRepository.findByIbanWithLock(request.getToIban())
+        Account toAccount = accountRepository.findByIbanWithLock(cleanToIban)
                 .orElseThrow(() -> {
                     logger.error("Error: cuenta destino no encontrada");
                     return new RuntimeException("La cuenta destino no ha sido encontrada");
@@ -106,6 +111,12 @@ public class TransactionService {
         transactionRepository.save(credit);
 
         logger.info("TRANSFERENCIA COMPLETADA con exito. Nuevo saldo de origen: {}€", fromAccount.getBalance());
+
+        String mensajeReceptor = String.format("Has recibido %s € de %s", request.getAmount(), fromAccount.getUser().getName());
+        notificationService.sendNotification(toAccount.getUser().getEmail(), mensajeReceptor);
+
+        String mensajeEmisor = String.format("Transferencia de %s € realizada con éxito s %s", request.getAmount(), toAccount.getUser().getName());
+        notificationService.sendNotification(fromAccount.getUser().getEmail(), mensajeEmisor);
     }
 
     @Transactional
