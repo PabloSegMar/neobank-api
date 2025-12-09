@@ -5,6 +5,8 @@ import com.example.neo_bank.api.repository.AuditLogRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 public class AuditAspect {
 
     private final AuditLogRepository auditLogRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AuditAspect.class);
 
     public AuditAspect(AuditLogRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
@@ -38,10 +41,9 @@ public class AuditAspect {
 
             auditLogRepository.save(log);
 
-            System.out.println("Auditoria guardada: " + action + " por " + username);
-
+            logger.info("AUDITORÍA: Acción '{}' registrada por usuario '{}'", action, username);
         } catch (Exception ex) {
-            System.err.println("Error guardando la auditoria: " + ex.getMessage());
+            logger.error("FALLO AUDITORÍA_ No se pudo guardar el log de '{}'", audit.action(), ex);
         }
     }
 
