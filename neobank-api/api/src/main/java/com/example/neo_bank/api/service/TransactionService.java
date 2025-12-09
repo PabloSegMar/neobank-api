@@ -8,6 +8,7 @@ import com.example.neo_bank.api.model.TransactionType;
 import com.example.neo_bank.api.repository.AccountRepository;
 import com.example.neo_bank.api.repository.TransactionRepository;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,12 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
-    private static final BigDecimal DAILY_LIMIT = new BigDecimal("2000.00");
+
+    @Value("${neobank.business.daily-limit}")
+    private BigDecimal dailyLimit;
+
+    @Value("${neobank.business.interest-rate}")
+    private BigDecimal interestRate;
 
     public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
@@ -52,7 +58,7 @@ public class TransactionService {
         if (spentToday == null) spentToday = BigDecimal.ZERO;
         BigDecimal totalSpent = spentToday.abs();
 
-        if (totalSpent.add(request.getAmount()).compareTo(DAILY_LIMIT) > 0) {
+        if (totalSpent.add(request.getAmount()).compareTo(dailyLimit) > 0) {
             logger.warn("Limite diario excedido para {}", fromAccount.getIban());
             throw new RuntimeException("Has superado tu límite diario de transferencias (2.000 €).");
         }
@@ -149,7 +155,7 @@ public class TransactionService {
             page = accountRepository.findAll(PageRequest.of(pageNumber, pageSize));
 
             for (Account account : page.getContent()) {
-                BigDecimal interest = account.getBalance().multiply(new BigDecimal("0.01").setScale(2, RoundingMode.HALF_EVEN));
+                BigDecimal interest = account.getBalance().multiply(interestRate).setScale(2, RoundingMode.HALF_EVEN);
                 if (interest.compareTo(BigDecimal.ZERO) > 0) {
                     account.setBalance(account.getBalance().add(interest));
                     accountRepository.save(account);
