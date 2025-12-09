@@ -22,7 +22,14 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.slf4j.Logger;
-
+/**
+ * Servicio principal de gestión financiera y transaccional.
+ * <p>
+ * Esta clase orquesta el movimiento de fondos garantizando propiedades ACID.
+ * Implementa <b>Bloqueo Pesimista (Pessimistic Locking)</b> en la base de datos
+ * para prevenir condiciones de carrera (Race Conditions) y asegurar que los saldos
+ * nunca sean inconsistentes, incluso bajo alta concurrencia.
+ */
 @Service
 public class TransactionService {
     private final AccountRepository accountRepository;
@@ -42,6 +49,21 @@ public class TransactionService {
         this.notificationService = notificationService;
     }
 
+    /**
+     * Ejecuta una transferencia atómica entre dos cuentas.
+     * <p>
+     * Flujo de ejecución:
+     * <ol>
+     * <li>Limpia y valida los IBAN de entrada.</li>
+     * <li>Adquiere un bloqueo de escritura (PESSIMISTIC_WRITE) en ambas cuentas.</li>
+     * <li>Verifica reglas de negocio: saldo suficiente y límite diario configurado.</li>
+     * <li>Actualiza saldos y persiste la transacción de forma atómica.</li>
+     * <li>Envía notificaciones asíncronas a los usuarios involucrados.</li>
+     * </ol>
+     *
+     * @param request DTO con los datos de la transferencia.
+     * @throws RuntimeException si el saldo es insuficiente o se supera el límite diario.
+     */
     @Transactional
     public void transferMoney(TransferRequest request) {
         String cleanFromIban = request.getFromIban().trim();
@@ -155,6 +177,13 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
+    /**
+     * Proceso batch para la capitalización de intereses.
+     * <p>
+     * Este método está diseñado para ser invocado por el Scheduler.
+     * Procesa las cuentas de forma paginada para optimizar el uso de memoria
+     * y evitar tiempos de espera (timeouts) en la base de datos con grandes volúmenes de datos.
+     */
     @Transactional
     @Audit(action = "PAGO AUTOMÁTICO DE INTERESES")
     public void applyInterestToAllAccounts() {

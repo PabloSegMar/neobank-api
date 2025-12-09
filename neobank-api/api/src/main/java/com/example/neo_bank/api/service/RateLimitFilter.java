@@ -13,6 +13,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filtro de seguridad de red para prevenir ataques de denegación de servicio (DDoS)
+ * y abuso de la API.
+ * <p>
+ * Implementa el algoritmo <b>Token Bucket</b> utilizando la librería Bucket4j.
+ * Restringe el número de peticiones permitidas por dirección IP en un intervalo de tiempo.
+ * Si se supera el límite, rechaza la petición con estado HTTP 429 (Too Many Requests).
+ */
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
     private final RateLimitingService rateLimitingService;

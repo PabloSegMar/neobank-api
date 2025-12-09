@@ -8,6 +8,16 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
+/**
+ * Componente de seguridad para la encriptación de datos sensibles (PII) en reposo.
+ * <p>
+ * Implementa un {@link AttributeConverter} de JPA para cifrar automáticamente
+ * el IBAN antes de guardarlo en la base de datos y descifrarlo al leerlo.
+ * Utiliza el estándar <b>AES (Advanced Encryption Standard)</b>.
+ * <p>
+ * Nota: Esto asegura que incluso si la base de datos es comprometida, los datos bancarios
+ * permanecen ilegibles sin la clave de aplicación.
+ */
 @Component
 @Converter
 public class IbanEncryptor implements AttributeConverter<String, String> {

@@ -13,6 +13,13 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/**
+ * Aspecto transversal para la auditoría de operaciones críticas.
+ * <p>
+ * Utiliza <b>Spring AOP</b> para interceptar métodos anotados con {@link Audit}.
+ * Registra automáticamente quién hizo qué y cuándo, desacoplando la lógica de
+ * registro de la lógica de negocio principal.
+ */
 @Aspect
 @Component
 public class AuditAspect {

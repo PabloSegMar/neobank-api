@@ -10,6 +10,13 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Manejador global de excepciones para la API REST.
+ * <p>
+ * Centraliza la captura de errores (de negocio, validación o sistema) y los transforma
+ * en respuestas JSON estandarizadas y limpias con códigos HTTP adecuados (400, 404, 500).
+ * Evita la exposición de trazas de pila (stacktraces) al cliente final por seguridad.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
